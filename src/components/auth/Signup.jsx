@@ -9,7 +9,7 @@ const Signup = () => {
   
   // Image paths constants
   const IMAGES = {
-    icon: "/src/assets/domihive-icon.png",
+    icon: "/src/assets/domihive-lcon.png",
     logo: "/src/assets/domihive-logo.png",
     placeholderIcon: "https://via.placeholder.com/40?text=DH",
     placeholderLogo: "https://via.placeholder.com/200x50?text=DomiHive"

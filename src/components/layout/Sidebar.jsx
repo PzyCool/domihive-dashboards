@@ -25,7 +25,7 @@ const Sidebar = ({ sidebarState, toggleSidebar, closeMobileSidebar, isMobile, cu
         main: [
           { label: 'Overview', icon: 'chart-pie', path: '/dashboard/rent/overview' },
           { label: 'Browse Properties', icon: 'search', path: '/dashboard/rent/browse' },
-          { label: 'Favorites', icon: 'heart', path: '/dashboard/rent/favorites' },
+          { label: 'Favorites', icon: 'heart', path: '/dashboard/favorites' }, // FIXED: Changed to shared route
         ],
         applications: [
           { label: 'My Applications', icon: 'file-alt', path: '/dashboard/rent/applications', badge: 0 },
@@ -44,6 +44,47 @@ const Sidebar = ({ sidebarState, toggleSidebar, closeMobileSidebar, isMobile, cu
   };
 
   const navItems = getDashboardNavItems();
+
+  // Add CSS for scroll highlight effect - MOVE THIS HOOK BEFORE CONDITIONAL RETURN
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .nav-link.scroll-highlight {
+        animation: highlight-pulse 1s ease-in-out;
+        box-shadow: 0 0 0 2px rgba(159, 117, 57, 0.3);
+      }
+      
+      @keyframes highlight-pulse {
+        0% { box-shadow: 0 0 0 0px rgba(159, 117, 57, 0.3); }
+        50% { box-shadow: 0 0 0 4px rgba(159, 117, 57, 0.5); }
+        100% { box-shadow: 0 0 0 2px rgba(159, 117, 57, 0.3); }
+      }
+      
+      /* Custom scrollbar styling */
+      .sidebar-nav::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      .sidebar-nav::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+      }
+      
+      .sidebar-nav::-webkit-scrollbar-thumb {
+        background: rgba(159, 117, 57, 0.4);
+        border-radius: 3px;
+      }
+      
+      .sidebar-nav::-webkit-scrollbar-thumb:hover {
+        background: rgba(159, 117, 57, 0.6);
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   // Auto-scroll to active nav item with improved logic
   useEffect(() => {
@@ -137,6 +178,7 @@ const Sidebar = ({ sidebarState, toggleSidebar, closeMobileSidebar, isMobile, cu
     }
   };
 
+  // CRITICAL FIX: Move conditional return AFTER all hooks
   // Don't render sidebar if user not loaded
   if (!user) return null;
 
@@ -144,47 +186,6 @@ const Sidebar = ({ sidebarState, toggleSidebar, closeMobileSidebar, isMobile, cu
   const isCollapsed = sidebarState === 'collapsed';
   const isHidden = sidebarState === 'hidden';
   const isMobileOpen = sidebarState === 'mobile-open';
-
-  // Add CSS for scroll highlight effect
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      .nav-link.scroll-highlight {
-        animation: highlight-pulse 1s ease-in-out;
-        box-shadow: 0 0 0 2px rgba(159, 117, 57, 0.3);
-      }
-      
-      @keyframes highlight-pulse {
-        0% { box-shadow: 0 0 0 0px rgba(159, 117, 57, 0.3); }
-        50% { box-shadow: 0 0 0 4px rgba(159, 117, 57, 0.5); }
-        100% { box-shadow: 0 0 0 2px rgba(159, 117, 57, 0.3); }
-      }
-      
-      /* Custom scrollbar styling */
-      .sidebar-nav::-webkit-scrollbar {
-        width: 6px;
-      }
-      
-      .sidebar-nav::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 3px;
-      }
-      
-      .sidebar-nav::-webkit-scrollbar-thumb {
-        background: rgba(159, 117, 57, 0.4);
-        border-radius: 3px;
-      }
-      
-      .sidebar-nav::-webkit-scrollbar-thumb:hover {
-        background: rgba(159, 117, 57, 0.6);
-      }
-    `;
-    document.head.appendChild(style);
-    
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
 
   return (
     <>
