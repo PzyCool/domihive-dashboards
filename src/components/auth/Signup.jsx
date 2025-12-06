@@ -1,9 +1,20 @@
 // src/components/auth/Signup.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../../context/AuthContext';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { signup } = useAuth();
+  
+  // Image paths constants
+  const IMAGES = {
+    icon: "/src/assets/domihive-lcon.png",
+    logo: "/src/assets/domihive-logo.png",
+    placeholderIcon: "https://via.placeholder.com/40?text=DH",
+    placeholderLogo: "https://via.placeholder.com/200x50?text=DomiHive"
+  };
+
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -343,32 +354,34 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Create profile photo URL if exists
+      const profilePhotoUrl = formData.profilePhoto
+        ? URL.createObjectURL(formData.profilePhoto)
+        : null;
 
-      const userData = {
-        id: Date.now().toString(),
+      // Use AuthContext signup function
+      const result = await signup({
         name: formData.name,
         username: formData.username,
         email: formData.email,
         phone: formData.phone,
         countryCode: formData.countryCode,
-        profilePhoto: formData.profilePhoto
-          ? URL.createObjectURL(formData.profilePhoto)
-          : null,
-        createdAt: new Date().toISOString(),
-      };
+        profilePhoto: profilePhotoUrl,
+      });
 
-      localStorage.setItem("domihive_user", JSON.stringify(userData));
-      localStorage.setItem("domihive_auth_token", "token_" + Date.now());
+      if (result.success) {
+        showNotification("Account created successfully!", "success");
 
-      showNotification("Account created successfully!", "success");
-
-      setTimeout(() => {
-  navigate("/dashboard/rent"); // Just to dashboard, not specific page
-}, 1500);
-      
+        // Redirect to rent dashboard (default dashboard)
+        setTimeout(() => {
+          navigate("/dashboard/rent");
+        }, 1500);
+      } else {
+        setErrors({ general: result.error || "Account creation failed. Please try again." });
+      }
     } catch (error) {
       setErrors({ general: "Account creation failed. Please try again." });
+      console.error("Signup error:", error);
     } finally {
       setLoading(false);
     }
@@ -496,12 +509,12 @@ const Signup = () => {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <img
-            src="/src/assets/domihive-icon.png"
+            src={IMAGES.icon}
             alt="DomiHive Icon"
             className="h-10 w-10"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = "https://via.placeholder.com/40?text=DH";
+              e.target.src = IMAGES.placeholderIcon;
             }}
           />
           <h2 className="text-2xl font-bold text-gray-900">
@@ -711,23 +724,23 @@ const Signup = () => {
             </button>
           </div>
 
-          {/* Password Match Indicator */}
+          {/* Password Match Indicator - FIXED SYNTAX */}
           {formData.confirmPassword && (
             <div className="mt-1 flex items-center gap-2">
               {formData.password === formData.confirmPassword ? (
-                <>
+                <div className="flex items-center gap-2">
                   <i className="fas fa-check-circle text-green-500"></i>
                   <span className="text-xs text-green-600 font-medium">
                     Passwords match
                   </span>
-                </>
+                </div>
               ) : (
-                <>
+                <div className="flex items-center gap-2">
                   <i className="fas fa-times-circle text-red-500"></i>
                   <span className="text-xs text-red-600 font-medium">
                     Passwords don't match
                   </span>
-                </>
+                </div>
               )}
             </div>
           )}
@@ -798,12 +811,12 @@ const Signup = () => {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <img
-            src="/src/assets/domihive-icon.png"
+            src={IMAGES.icon}
             alt="DomiHive Icon"
             className="h-10 w-10"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = "https://via.placeholder.com/40?text=DH";
+              e.target.src = IMAGES.placeholderIcon;
             }}
           />
           <h2 className="text-2xl font-bold text-gray-900">
@@ -884,12 +897,12 @@ const Signup = () => {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <img
-            src="/src/assets/domihive-icon.png"
+            src={IMAGES.icon}
             alt="DomiHive Icon"
             className="h-10 w-10"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = "https://via.placeholder.com/40?text=DH";
+              e.target.src = IMAGES.placeholderIcon;
             }}
           />
           <h2 className="text-2xl font-bold text-gray-900">
@@ -1087,13 +1100,12 @@ const Signup = () => {
               <div>
                 <div className="mb-12">
                   <img
-                    src="/src/assets/domihive-logo.png"
+                    src={IMAGES.logo}
                     alt="DomiHive Logo"
                     className="h-10"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src =
-                        "https://via.placeholder.com/200x50?text=DomiHive";
+                      e.target.src = IMAGES.placeholderLogo;
                     }}
                   />
                 </div>

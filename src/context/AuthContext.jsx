@@ -1,7 +1,6 @@
 // src/context/AuthContext.jsx
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
-// Create the Auth Context
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -17,9 +16,9 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authToken, setAuthToken] = useState(null);
 
-  // Check for existing auth on mount
+  // Load user from localStorage on mount
   useEffect(() => {
-    const checkAuth = () => {
+    const loadUser = () => {
       try {
         const storedUser = localStorage.getItem('domihive_user');
         const storedToken = localStorage.getItem('domihive_auth_token');
@@ -30,52 +29,56 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.error('Error loading auth:', error);
-        // Clear invalid storage
-        localStorage.removeItem('domihive_user');
-        localStorage.removeItem('domihive_auth_token');
+        logout(); // Clear invalid data
       } finally {
         setLoading(false);
       }
     };
 
-    checkAuth();
+    loadUser();
   }, []);
 
   // Login function
-  const login = async (email, password) => {
+  const login = async (phone, password) => {
     setLoading(true);
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock user data - in real app, this would come from API
-      const mockUser = {
-        id: 'user_001',
-        name: 'Demo User',
-        email: email,
-        phone: '+2348012345678',
-        interest: 'rent',
-        createdAt: new Date().toISOString()
+      // Load user from localStorage (from signup)
+      const storedUser = localStorage.getItem('domihive_user');
+      const storedToken = localStorage.getItem('domihive_auth_token');
+      
+      if (!storedUser || !storedToken) {
+        throw new Error('No account found');
+      }
+      
+      const userData = JSON.parse(storedUser);
+      
+      // Simple password check (in real app, this would be API validation)
+      if (!password || password.length < 6) {
+        throw new Error('Invalid credentials');
+      }
+      
+      setUser(userData);
+      setAuthToken(storedToken);
+      
+      return { 
+        success: true, 
+        user: userData,
+        token: storedToken
       };
-      
-      const token = 'mock_token_' + Date.now();
-      
-      // Save to localStorage
-      localStorage.setItem('domihive_user', JSON.stringify(mockUser));
-      localStorage.setItem('domihive_auth_token', token);
-      
-      setUser(mockUser);
-      setAuthToken(token);
-      
-      return { success: true, user: mockUser };
     } catch (error) {
-      return { success: false, error: 'Login failed' };
+      return { 
+        success: false, 
+        error: error.message || 'Login failed' 
+      };
     } finally {
       setLoading(false);
     }
   };
 
-  // Signup function
+  // Signup function (to be called from Signup.jsx)
   const signup = async (userData) => {
     setLoading(true);
     try {
@@ -83,26 +86,43 @@ export const AuthProvider = ({ children }) => {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       const newUser = {
-        id: 'user_' + Date.now(),
+        id: `user_${Date.now()}`,
         name: userData.name,
+        username: userData.username,
         email: userData.email,
         phone: userData.phone,
-        interest: userData.interest,
-        createdAt: new Date().toISOString()
+        countryCode: userData.countryCode,
+        profilePhoto: userData.profilePhoto,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        dashboards: {
+          rent: true, // Default dashboard enabled
+          buy: false,
+          commercial: false,
+          shortlet: false
+        }
       };
       
-      const token = 'mock_token_' + Date.now();
+      const token = `domihive_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       // Save to localStorage
       localStorage.setItem('domihive_user', JSON.stringify(newUser));
       localStorage.setItem('domihive_auth_token', token);
+      localStorage.setItem('domihive_last_dashboard', 'rent'); // Default to rent
       
       setUser(newUser);
       setAuthToken(token);
       
-      return { success: true, user: newUser };
+      return { 
+        success: true, 
+        user: newUser,
+        token: token
+      };
     } catch (error) {
-      return { success: false, error: 'Signup failed' };
+      return { 
+        success: false, 
+        error: 'Signup failed. Please try again.' 
+      };
     } finally {
       setLoading(false);
     }
@@ -120,7 +140,12 @@ export const AuthProvider = ({ children }) => {
   const updateUser = (updatedData) => {
     if (!user) return;
     
-    const updatedUser = { ...user, ...updatedData };
+    const updatedUser = { 
+      ...user, 
+      ...updatedData,
+      updatedAt: new Date().toISOString()
+    };
+    
     localStorage.setItem('domihive_user', JSON.stringify(updatedUser));
     setUser(updatedUser);
   };
@@ -128,7 +153,6 @@ export const AuthProvider = ({ children }) => {
   // Check if user is authenticated
   const isAuthenticated = !!user && !!authToken;
 
-  // Context value
   const value = {
     user,
     authToken,

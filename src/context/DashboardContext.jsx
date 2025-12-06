@@ -1,7 +1,6 @@
 // src/context/DashboardContext.jsx
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
-// Create the Dashboard Context
 const DashboardContext = createContext();
 
 export const useDashboard = () => {
@@ -14,106 +13,140 @@ export const useDashboard = () => {
 
 export const DashboardProvider = ({ children }) => {
   const [currentDashboard, setCurrentDashboard] = useState('rent');
-  const [sidebarConfig, setSidebarConfig] = useState(null);
+  const [userDashboards, setUserDashboards] = useState({
+    rent: true,
+    buy: false,
+    commercial: false,
+    shortlet: false
+  });
 
-  // Load saved dashboard preference on mount
+  // Load dashboard preferences on mount
   useEffect(() => {
-    const savedDashboard = localStorage.getItem('domihive_dashboard');
-    if (savedDashboard) {
-      setCurrentDashboard(savedDashboard);
-    }
-    // Initialize sidebar config
-    updateSidebarConfig(savedDashboard || 'rent');
+    const loadDashboardPrefs = () => {
+      try {
+        const savedDashboard = localStorage.getItem('domihive_last_dashboard');
+        const savedUser = localStorage.getItem('domihive_user');
+        
+        if (savedDashboard) {
+          setCurrentDashboard(savedDashboard);
+        }
+        
+        if (savedUser) {
+          const userData = JSON.parse(savedUser);
+          if (userData.dashboards) {
+            setUserDashboards(userData.dashboards);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading dashboard preferences:', error);
+      }
+    };
+
+    loadDashboardPrefs();
   }, []);
 
-  // Dashboard sidebar configurations
+  // Switch dashboard function
+  const switchDashboard = (dashboardType) => {
+    if (!userDashboards[dashboardType]) {
+      // Dashboard not activated yet - show onboarding
+      return { 
+        success: false, 
+        error: 'Dashboard not activated' 
+      };
+    }
+    
+    setCurrentDashboard(dashboardType);
+    localStorage.setItem('domihive_last_dashboard', dashboardType);
+    
+    return { success: true };
+  };
+
+  // Activate a new dashboard
+  const activateDashboard = (dashboardType) => {
+    const updatedDashboards = {
+      ...userDashboards,
+      [dashboardType]: true
+    };
+    
+    setUserDashboards(updatedDashboards);
+    
+    // Update user data in localStorage
+    const savedUser = localStorage.getItem('domihive_user');
+    if (savedUser) {
+      const userData = JSON.parse(savedUser);
+      userData.dashboards = updatedDashboards;
+      localStorage.setItem('domihive_user', JSON.stringify(userData));
+    }
+    
+    // Switch to newly activated dashboard
+    switchDashboard(dashboardType);
+    
+    return { success: true };
+  };
+
+  // Get available dashboards for current user
+  const getAvailableDashboards = () => {
+    return Object.entries(userDashboards)
+      .filter(([_, enabled]) => enabled)
+      .map(([type]) => type);
+  };
+
+  // Dashboard configurations
   const getDashboardConfig = (type) => {
     const configs = {
       rent: {
-        label: 'For Rent',
-        icon: '🏠',
+        id: 'rent',
+        name: 'For Rent',
+        icon: 'home',
         color: 'bg-blue-500',
-        sidebar: {
-          main: [
-            { label: 'Overview', icon: 'chart-pie', section: 'overview' },
-            { label: 'Browse Properties', icon: 'search', section: 'browse' },
-            { label: 'Favorites', icon: 'heart', section: 'favorites' },
-          ],
-          applications: [
-            { label: 'My Applications', icon: 'file-alt', section: 'applications' },
-          ],
-          management: [
-            { label: 'My Properties', icon: 'home', section: 'my-properties' },
-            { label: 'Maintenance', icon: 'tools', section: 'maintenance' },
-            { label: 'Payments', icon: 'credit-card', section: 'payments' },
-            { label: 'Messages', icon: 'comments', section: 'messages' },
-          ]
-        }
-      },
-      shortlet: {
-        label: 'Shortlets',
-        icon: '🏨',
-        color: 'bg-purple-500',
-        sidebar: {
-          main: [
-            { label: 'Overview', icon: 'chart-pie', section: 'overview' },
-            { label: 'Browse Shortlets', icon: 'search', section: 'browse' },
-            { label: 'Favorites', icon: 'heart', section: 'favorites' },
-          ],
-          bookings: [
-            { label: 'My Bookings', icon: 'calendar-alt', section: 'bookings' },
-            { label: 'Booking Requests', icon: 'clock', section: 'requests' },
-          ],
-          management: [
-            { label: 'My Shortlets', icon: 'home', section: 'my-properties' },
-            { label: 'Requests', icon: 'inbox', section: 'requests' },
-            { label: 'Payments', icon: 'credit-card', section: 'payments' },
-            { label: 'Messages', icon: 'comments', section: 'messages' },
-          ]
-        }
-      },
-      commercial: {
-        label: 'Commercial',
-        icon: '🏢',
-        color: 'bg-green-500',
-        sidebar: {
-          main: [
-            { label: 'Overview', icon: 'chart-pie', section: 'overview' },
-            { label: 'Browse Commercial', icon: 'search', section: 'browse' },
-            { label: 'Favorites', icon: 'heart', section: 'favorites' },
-          ],
-          applications: [
-            { label: 'My Applications', icon: 'file-alt', section: 'applications' },
-            { label: 'Proposals', icon: 'file-contract', section: 'proposals' },
-          ],
-          management: [
-            { label: 'My Commercial', icon: 'building', section: 'my-properties' },
-            { label: 'Maintenance', icon: 'tools', section: 'maintenance' },
-            { label: 'Payments', icon: 'credit-card', section: 'payments' },
-            { label: 'Messages', icon: 'comments', section: 'messages' },
-          ]
+        description: 'Find and manage rental properties',
+        routes: {
+          overview: '/dashboard/rent/overview',
+          browse: '/dashboard/rent/browse',
+          applications: '/dashboard/rent/applications',
+          'my-properties': '/dashboard/rent/my-properties',
+          maintenance: '/dashboard/rent/maintenance',
+          payments: '/dashboard/rent/payments',
+          messages: '/dashboard/rent/messages'
         }
       },
       buy: {
-        label: 'Buy',
-        icon: '💰',
+        id: 'buy',
+        name: 'Buy',
+        icon: 'money-bill-wave',
         color: 'bg-amber-500',
-        sidebar: {
-          main: [
-            { label: 'Overview', icon: 'chart-pie', section: 'overview' },
-            { label: 'Browse Properties', icon: 'search', section: 'browse' },
-            { label: 'Favorites', icon: 'heart', section: 'favorites' },
-          ],
-          applications: [
-            { label: 'My Applications', icon: 'file-alt', section: 'applications' },
-            { label: 'Mortgage', icon: 'hand-holding-usd', section: 'mortgage' },
-          ],
-          management: [
-            { label: 'My Properties', icon: 'home', section: 'my-properties' },
-            { label: 'Documents', icon: 'file', section: 'documents' },
-            { label: 'Payments', icon: 'credit-card', section: 'payments' },
-            { label: 'Legal', icon: 'balance-scale', section: 'legal' },
-          ]
+        description: 'Purchase properties',
+        routes: {
+          overview: '/dashboard/buy/overview',
+          browse: '/dashboard/buy/browse',
+          applications: '/dashboard/buy/applications',
+          'my-properties': '/dashboard/buy/my-properties'
+        }
+      },
+      commercial: {
+        id: 'commercial',
+        name: 'Commercial',
+        icon: 'building',
+        color: 'bg-green-500',
+        description: 'Commercial properties and spaces',
+        routes: {
+          overview: '/dashboard/commercial/overview',
+          browse: '/dashboard/commercial/browse',
+          applications: '/dashboard/commercial/applications',
+          'my-properties': '/dashboard/commercial/my-properties'
+        }
+      },
+      shortlet: {
+        id: 'shortlet',
+        name: 'Shortlets',
+        icon: 'hotel',
+        color: 'bg-purple-500',
+        description: 'Short-term rentals and stays',
+        routes: {
+          overview: '/dashboard/shortlet/overview',
+          browse: '/dashboard/shortlet/browse',
+          applications: '/dashboard/shortlet/applications',
+          'my-properties': '/dashboard/shortlet/my-properties'
         }
       }
     };
@@ -121,29 +154,14 @@ export const DashboardProvider = ({ children }) => {
     return configs[type] || configs.rent;
   };
 
-  const updateSidebarConfig = (type) => {
-    const config = getDashboardConfig(type);
-    setSidebarConfig(config);
-  };
-
-  // Switch dashboard function
-  const switchDashboard = (type) => {
-    setCurrentDashboard(type);
-    updateSidebarConfig(type);
-    localStorage.setItem('domihive_dashboard', type);
-  };
-
-  // Get current dashboard config
-  const getCurrentConfig = () => {
-    return getDashboardConfig(currentDashboard);
-  };
-
-  // Context value
   const value = {
     currentDashboard,
-    sidebarConfig,
+    userDashboards,
     switchDashboard,
-    getCurrentConfig
+    activateDashboard,
+    getAvailableDashboards,
+    getDashboardConfig,
+    getCurrentConfig: () => getDashboardConfig(currentDashboard)
   };
 
   return (

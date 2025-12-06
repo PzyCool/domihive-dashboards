@@ -1,9 +1,12 @@
 // src/components/auth/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth(); // Add AuthContext hook
+  
   const [formData, setFormData] = useState({
     phone: '',
     password: '',
@@ -14,6 +17,14 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [countryCode, setCountryCode] = useState('+234');
   
+  // Image paths constants
+  const IMAGES = {
+    icon: "/src/assets/domihive-lcon.png",
+    logo: "/src/assets/domihive-logo.png",
+    placeholderIcon: 'https://via.placeholder.com/40?text=DH',
+    placeholderLogo: 'https://via.placeholder.com/200x50?text=DomiHive'
+  };
+
   // Country codes data (same as signup)
   const countryCodes = [
     { code: '+234', country: 'Nigeria', flag: '🇳🇬' },
@@ -112,9 +123,6 @@ const Login = () => {
     setLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // Save remembered phone if checked
       if (formData.rememberMe) {
         localStorage.setItem('domihive_remembered_phone', JSON.stringify({
@@ -125,35 +133,37 @@ const Login = () => {
         localStorage.removeItem('domihive_remembered_phone');
       }
       
-      // Mock user data - in real app, this would come from API
-      const mockUser = {
-        id: 'user_001',
-        name: 'Alex Johnson',
-        email: 'alex@example.com',
-        phone: formData.phone,
-        countryCode: countryCode,
-        username: 'alexj',
-        profilePhoto: null,
-        interest: 'rent',
-        createdAt: new Date().toISOString()
-      };
+      // Get full phone number with country code
+      const fullPhone = countryCode + formData.phone.replace(/\D/g, '');
       
-      const token = 'token_' + Date.now();
+      // Use AuthContext login function
+      const result = await login(fullPhone, formData.password);
       
-      // Save to localStorage
-      localStorage.setItem('domihive_user', JSON.stringify(mockUser));
-      localStorage.setItem('domihive_auth_token', token);
-      
-      showNotification('Login successful!', 'success');
-      
-      // Redirect to dashboard after delay
-      setTimeout(() => {
-        navigate('/dashboard/rent');
-      }, 1000);
+      if (result.success) {
+        showNotification('Login successful!', 'success');
+        
+        // Check if user has a last dashboard saved
+        const lastDashboard = localStorage.getItem('domihive_last_dashboard');
+        
+        // Redirect to dashboard after delay
+        setTimeout(() => {
+          if (lastDashboard) {
+            navigate(`/dashboard/${lastDashboard}`);
+          } else {
+            // Default to rent dashboard
+            navigate('/dashboard/rent');
+          }
+        }, 1000);
+        
+      } else {
+        setErrors({ general: result.error || 'Login failed. Please check your credentials.' });
+        showNotification('Login failed. Please try again.', 'error');
+      }
       
     } catch (error) {
       setErrors({ general: 'Login failed. Please check your credentials.' });
       showNotification('Login failed. Please try again.', 'error');
+      console.error('Login error:', error);
     } finally {
       setLoading(false);
     }
@@ -181,12 +191,12 @@ const Login = () => {
             <div>
               <div className="mb-12">
                 <img 
-                  src="/src/assets/domihive-logo.png" 
+                  src={IMAGES.logo}
                   alt="DomiHive Logo" 
                   className="h-10"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = 'https://via.placeholder.com/200x50?text=DomiHive';
+                    e.target.src = IMAGES.placeholderLogo;
                   }}
                 />
               </div>
@@ -259,12 +269,12 @@ const Login = () => {
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-4">
                 <img 
-                  src="/src/assets/domihive-icon.png" 
+                  src={IMAGES.icon}
                   alt="DomiHive Icon"
                   className="h-10 w-10"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = 'https://via.placeholder.com/40?text=DH';
+                    e.target.src = IMAGES.placeholderIcon;
                   }}
                 />
                 <h2 className="text-2xl font-bold text-gray-900">Welcome Back</h2>
@@ -449,7 +459,11 @@ const Login = () => {
                 <div>
                   <p className="text-sm font-medium text-blue-800 mb-1">Demo Account</p>
                   <p className="text-xs text-blue-700">
-                    For testing, use any phone number and password. The system will simulate login.
+                    For testing, use any phone number and password (minimum 6 characters). 
+                    The system will authenticate against your signup data.
+                  </p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    <strong>Test user:</strong> Use the same phone number and password you used during signup.
                   </p>
                 </div>
               </div>
