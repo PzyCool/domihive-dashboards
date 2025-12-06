@@ -11,9 +11,21 @@ const UnifiedActionsPanel = () => {
   
   // State for notifications and quick actions
   const [notifications, setNotifications] = useState([]);
-  const [quickActions, setQuickActions] = useState([]);
   const [dashboardShortcuts, setDashboardShortcuts] = useState([]);
   
+  // State for Rental Journey Status
+  const [statusData, setStatusData] = useState({
+    browse: '80+ verified properties',
+    applications: '0 active applications',
+    applicationsBadge: 0,
+    inspections: '0 upcoming inspections',
+    inspectionsBadge: 0,
+    favorites: '0 saved properties',
+    favoritesBadge: 0,
+    messages: '0 unread messages',
+    messagesBadge: 0
+  });
+
   // Load unified data
   useEffect(() => {
     // Load notifications (cross-dashboard)
@@ -28,19 +40,6 @@ const UnifiedActionsPanel = () => {
       setNotifications(mockNotifications);
     };
     
-    // Load quick actions
-    const loadQuickActions = () => {
-      const actions = [
-        { id: 1, title: 'Update Profile', icon: 'user-edit', description: 'Complete your profile information', path: '/dashboard/settings', color: 'from-blue-500 to-blue-600' },
-        { id: 2, title: 'Payment Methods', icon: 'credit-card', description: 'Manage your payment options', path: '/dashboard/rent/payments', color: 'from-green-500 to-green-600' },
-        { id: 3, title: 'Document Center', icon: 'file-alt', description: 'Access all your documents', path: '/dashboard/rent/applications', color: 'from-purple-500 to-purple-600' },
-        { id: 4, title: 'Help Center', icon: 'question-circle', description: 'Get help and support', path: '/dashboard/settings?tab=help', color: 'from-amber-500 to-amber-600' },
-        { id: 5, title: 'Privacy Settings', icon: 'shield-alt', description: 'Manage your privacy preferences', path: '/dashboard/settings?tab=privacy', color: 'from-red-500 to-red-600' },
-        { id: 6, title: 'Notification Settings', icon: 'bell', description: 'Customize your notifications', path: '/dashboard/settings?tab=notifications', color: 'from-indigo-500 to-indigo-600' }
-      ];
-      setQuickActions(actions);
-    };
-    
     // Load dashboard shortcuts
     const loadDashboardShortcuts = () => {
       const shortcuts = [
@@ -52,10 +51,28 @@ const UnifiedActionsPanel = () => {
       setDashboardShortcuts(shortcuts);
     };
     
-    loadNotifications();
-    loadQuickActions();
-    loadDashboardShortcuts();
+    // Load Rental Journey Status data
+    const loadStatusData = () => {
+      const savedFavorites = JSON.parse(localStorage.getItem('domihive_user_favorites') || '[]');
+      const applications = JSON.parse(localStorage.getItem('domihive_user_applications') || '[]');
+      
+      setStatusData({
+        browse: '80+ verified properties',
+        applications: `${applications.length} active applications`,
+        applicationsBadge: applications.length,
+        inspections: '0 upcoming inspections',
+        inspectionsBadge: 0,
+        favorites: `${savedFavorites.length} saved properties`,
+        favoritesBadge: savedFavorites.length,
+        messages: '0 unread messages',
+        messagesBadge: 0
+      });
+    };
     
+    loadNotifications();
+    loadDashboardShortcuts();
+    loadStatusData();
+
     // Simulate new notifications
     const interval = setInterval(() => {
       setNotifications(prev => {
@@ -75,7 +92,7 @@ const UnifiedActionsPanel = () => {
         return prev;
       });
     }, 60000);
-    
+
     return () => clearInterval(interval);
   }, []);
   
@@ -110,11 +127,6 @@ const UnifiedActionsPanel = () => {
     }
   };
   
-  // Handle quick action click
-  const handleQuickActionClick = (action) => {
-    navigate(action.path);
-  };
-  
   // Handle dashboard switch
   const handleDashboardSwitch = (dashboard) => {
     if (dashboard.enabled) {
@@ -131,6 +143,29 @@ const UnifiedActionsPanel = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
   
+  // Navigation handlers for Rental Journey Status
+  const handleNavigate = (section) => {
+    switch(section) {
+      case 'browse':
+        navigate(`/dashboard/${currentDashboard}/browse`);
+        break;
+      case 'applications':
+        navigate(`/dashboard/${currentDashboard}/applications`);
+        break;
+      case 'inspections':
+        navigate(`/dashboard/${currentDashboard}/applications`);
+        break;
+      case 'favorites':
+        navigate('/dashboard/favorites');
+        break;
+      case 'messages':
+        navigate(`/dashboard/${currentDashboard}/messages`);
+        break;
+      default:
+        break;
+    }
+  };
+
   // Get unread notifications count
   const unreadCount = notifications.filter(n => !n.read).length;
   
@@ -145,22 +180,22 @@ const UnifiedActionsPanel = () => {
   };
   
   return (
-    <section className="unified-actions-panel bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-      {/* Header */}
+    <section className="unified-actions-panel bg-white rounded-lg shadow-md border border-[#e2e8f0] p-6">
+      {/* Header - Updated colors */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h2 className="text-2xl font-bold text-[#0e1f42] mb-2">Unified Actions</h2>
-          <p className="text-gray-600">Quick access across all dashboards</p>
+          <p className="text-[#64748b]">Quick access across all dashboards</p>
         </div>
         <div className="text-sm font-medium text-[#9f7539] bg-[#9f7539]/10 px-3 py-1.5 rounded-full">
-          <i className="fas fa-bolt mr-1"></i> QUICK ACTIONS
+          <i className="fas fa-bolt mr-1"></i> QUICK ACCESS
         </div>
       </div>
       
-      {/* Notifications Section */}
+      {/* Notifications Section - Updated colors */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-gray-800 flex items-center gap-2">
+          <h3 className="font-bold text-[#0e1f42] flex items-center gap-2">
             <i className="fas fa-bell text-[#9f7539]"></i>
             Cross-Dashboard Notifications
             {unreadCount > 0 && (
@@ -171,7 +206,7 @@ const UnifiedActionsPanel = () => {
           </h3>
           <button 
             onClick={markAllAsRead}
-            className="text-sm text-[#0e1f42] hover:text-[#9f7539] font-medium"
+            className="text-sm text-[#0e1f42] hover:text-[#9f7539] font-medium transition-colors"
           >
             Mark all as read
           </button>
@@ -182,7 +217,7 @@ const UnifiedActionsPanel = () => {
             <div 
               key={notification.id}
               onClick={() => handleNotificationClick(notification)}
-              className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md ${
+              className={`p-4 rounded-lg border cursor-pointer transition-all duration-300 hover:translate-x-2 hover:shadow-md ${
                 notification.read ? 'bg-gray-50' : 'bg-blue-50'
               } ${getPriorityColor(notification.priority)}`}
             >
@@ -201,14 +236,14 @@ const UnifiedActionsPanel = () => {
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <span className={`font-medium ${notification.read ? 'text-gray-700' : 'text-gray-900'}`}>
+                    <span className={`font-medium ${notification.read ? 'text-[#64748b]' : 'text-[#0e1f42]'}`}>
                       {notification.title}
                     </span>
-                    <span className="text-xs text-gray-500">{notification.time}</span>
+                    <span className="text-xs text-[#64748b]">{notification.time}</span>
                   </div>
-                  <p className="text-sm text-gray-600 mb-1">{notification.message}</p>
+                  <p className="text-sm text-[#64748b] mb-1">{notification.message}</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs px-2 py-0.5 bg-gray-100 rounded">
+                    <span className="text-xs px-2 py-0.5 bg-gray-100 rounded text-[#64748b]">
                       {notification.dashboard === 'all' ? 'All Dashboards' : `${notification.dashboard} Dashboard`}
                     </span>
                     {!notification.read && (
@@ -223,17 +258,17 @@ const UnifiedActionsPanel = () => {
         
         <button 
           onClick={() => navigate('/dashboard/settings?tab=notifications')}
-          className="mt-3 w-full py-2 text-sm font-medium text-[#0e1f42] hover:text-[#9f7539] hover:bg-gray-50 rounded-lg transition-colors"
+          className="mt-3 w-full py-2 text-sm font-medium text-[#0e1f42] hover:text-[#9f7539] hover:bg-gray-50 rounded-lg transition-colors hover:translate-x-1"
         >
           <i className="fas fa-cog mr-2"></i>
           Configure Notification Preferences
         </button>
       </div>
       
-      {/* Dashboard Switcher Shortcuts */}
+      {/* Dashboard Switcher Shortcuts - Updated colors and added hover effects */}
       <div className="mb-8">
-        <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <i className="fas fa-th-large text-purple-500"></i>
+        <h3 className="font-bold text-[#0e1f42] mb-4 flex items-center gap-2">
+          <i className="fas fa-th-large text-[#9f7539]"></i>
           Dashboard Shortcuts
         </h3>
         
@@ -242,11 +277,11 @@ const UnifiedActionsPanel = () => {
             <div
               key={dashboard.id}
               onClick={() => handleDashboardSwitch(dashboard)}
-              className={`rounded-xl p-4 border cursor-pointer transition-all duration-200 ${
+              className={`rounded-xl p-4 border cursor-pointer transition-all duration-300 hover:translate-x-2 hover:shadow-md ${
                 dashboard.id === currentDashboard
                   ? 'bg-gradient-to-br from-[#0e1f42] to-[#1a2d5f] border-[#0e1f42] text-white'
                   : dashboard.enabled
-                  ? 'bg-white border-gray-200 hover:shadow-md hover:border-gray-300'
+                  ? 'bg-white border-[#e2e8f0] hover:border-[#9f7539]/30'
                   : 'bg-gray-100 border-gray-300 opacity-60'
               }`}
             >
@@ -255,11 +290,11 @@ const UnifiedActionsPanel = () => {
                   dashboard.id === currentDashboard
                     ? 'bg-white/20'
                     : dashboard.enabled
-                    ? 'bg-gray-100'
+                    ? 'bg-[#f8fafc]'
                     : 'bg-gray-200'
                 }`}>
                   <i className={`fas fa-${dashboard.icon} ${
-                    dashboard.id === currentDashboard ? 'text-white' : 'text-gray-600'
+                    dashboard.id === currentDashboard ? 'text-white' : 'text-[#64748b]'
                   }`}></i>
                 </div>
                 
@@ -275,13 +310,13 @@ const UnifiedActionsPanel = () => {
               </div>
               
               <div className={`font-medium mb-1 ${
-                dashboard.id === currentDashboard ? 'text-white' : 'text-gray-800'
+                dashboard.id === currentDashboard ? 'text-white' : 'text-[#0e1f42]'
               }`}>
                 {dashboard.name}
               </div>
               
               <div className={`text-xs ${
-                dashboard.id === currentDashboard ? 'text-white/80' : 'text-gray-600'
+                dashboard.id === currentDashboard ? 'text-white/80' : 'text-[#64748b]'
               }`}>
                 {dashboard.description}
               </div>
@@ -297,11 +332,160 @@ const UnifiedActionsPanel = () => {
         
         <button 
           onClick={() => navigate('/dashboard/settings?tab=dashboards')}
-          className="mt-4 w-full py-2 text-sm font-medium text-[#0e1f42] hover:text-[#9f7539] hover:bg-gray-50 rounded-lg transition-colors"
+          className="mt-4 w-full py-2 text-sm font-medium text-[#0e1f42] hover:text-[#9f7539] hover:bg-gray-50 rounded-lg transition-colors hover:translate-x-1"
         >
           <i className="fas fa-sliders-h mr-2"></i>
           Manage Dashboard Preferences
         </button>
+      </div>
+
+      {/* REPLACEMENT: Rental Journey Status Section (instead of Quick Actions) */}
+      <div>
+        <h3 className="font-bold text-[#0e1f42] mb-6 flex items-center gap-2">
+          <i className="fas fa-road text-[#9f7539]"></i>
+          Your Rental Journey Status
+        </h3>
+        
+        <div className="status-grid grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* MAIN Section */}
+          <div className="status-category border-r border-[#e2e8f0] pr-6">
+            <h4 className="category-title text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-6 pb-2 border-b-2 border-[#9f7539]">
+              MAIN
+            </h4>
+            
+            <div 
+              className="status-item flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2 hover:shadow-md"
+              onClick={() => handleNavigate('browse')}
+            >
+              <div className="status-icon w-12 h-12 bg-[#f8fafc] rounded-lg flex items-center justify-center text-[#9f7539] text-lg">
+                <i className="fas fa-search"></i>
+              </div>
+              
+              <div className="status-content flex-1 min-w-0">
+                <span className="status-label block font-semibold text-[#0e1f42] mb-1">
+                  Browse Properties
+                </span>
+                <span className="status-value text-sm text-[#64748b]" id="browseStatus">
+                  {statusData.browse}
+                </span>
+              </div>
+              
+              <div className="status-badge new bg-[#0e1f42] text-white text-xs font-bold px-3 py-1.5 rounded" id="browseBadge">
+                LIVE
+              </div>
+            </div>
+          </div>
+
+          {/* APPLICATIONS Section */}
+          <div className="status-category border-r border-[#e2e8f0] px-6">
+            <h4 className="category-title text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-6 pb-2 border-b-2 border-[#9f7539]">
+              APPLICATIONS
+            </h4>
+            
+            <div 
+              className="status-item flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2 hover:shadow-md mb-4"
+              onClick={() => handleNavigate('applications')}
+            >
+              <div className="status-icon w-12 h-12 bg-[#f8fafc] rounded-lg flex items-center justify-center text-[#9f7539] text-lg">
+                <i className="fas fa-file-alt"></i>
+              </div>
+              
+              <div className="status-content flex-1 min-w-0">
+                <span className="status-label block font-semibold text-[#0e1f42] mb-1">
+                  My Applications
+                </span>
+                <span className="status-value text-sm text-[#64748b]" id="applicationsStatus">
+                  {statusData.applications}
+                </span>
+              </div>
+              
+              {statusData.applicationsBadge > 0 && (
+                <div className="status-badge bg-[#9f7539] text-white text-xs font-bold px-2.5 py-1.5 rounded min-w-[28px] text-center" id="applicationsBadge">
+                  {statusData.applicationsBadge > 99 ? '99+' : statusData.applicationsBadge}
+                </div>
+              )}
+            </div>
+            
+            <div 
+              className="status-item flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2 hover:shadow-md"
+              onClick={() => handleNavigate('inspections')}
+            >
+              <div className="status-icon w-12 h-12 bg-[#f8fafc] rounded-lg flex items-center justify-center text-[#9f7539] text-lg">
+                <i className="fas fa-calendar-check"></i>
+              </div>
+              
+              <div className="status-content flex-1 min-w-0">
+                <span className="status-label block font-semibold text-[#0e1f42] mb-1">
+                  Booked Inspections
+                </span>
+                <span className="status-value text-sm text-[#64748b]" id="inspectionsStatus">
+                  {statusData.inspections}
+                </span>
+              </div>
+              
+              {statusData.inspectionsBadge > 0 && (
+                <div className="status-badge bg-[#9f7539] text-white text-xs font-bold px-2.5 py-1.5 rounded min-w-[28px] text-center" id="inspectionsBadge">
+                  {statusData.inspectionsBadge > 99 ? '99+' : statusData.inspectionsBadge}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ACCOUNT Section */}
+          <div className="status-category pl-6">
+            <h4 className="category-title text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-6 pb-2 border-b-2 border-[#9f7539]">
+              ACCOUNT
+            </h4>
+            
+            <div 
+              className="status-item flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2 hover:shadow-md mb-4"
+              onClick={() => handleNavigate('favorites')}
+            >
+              <div className="status-icon w-12 h-12 bg-[#f8fafc] rounded-lg flex items-center justify-center text-[#9f7539] text-lg">
+                <i className="fas fa-heart"></i>
+              </div>
+              
+              <div className="status-content flex-1 min-w-0">
+                <span className="status-label block font-semibold text-[#0e1f42] mb-1">
+                  Favorites
+                </span>
+                <span className="status-value text-sm text-[#64748b]" id="favoritesStatus">
+                  {statusData.favorites}
+                </span>
+              </div>
+              
+              {statusData.favoritesBadge > 0 && (
+                <div className="status-badge bg-[#9f7539] text-white text-xs font-bold px-2.5 py-1.5 rounded min-w-[28px] text-center" id="favoritesBadge">
+                  {statusData.favoritesBadge > 99 ? '99+' : statusData.favoritesBadge}
+                </div>
+              )}
+            </div>
+            
+            <div 
+              className="status-item flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2 hover:shadow-md"
+              onClick={() => handleNavigate('messages')}
+            >
+              <div className="status-icon w-12 h-12 bg-[#f8fafc] rounded-lg flex items-center justify-center text-[#9f7539] text-lg">
+                <i className="fas fa-comments"></i>
+              </div>
+              
+              <div className="status-content flex-1 min-w-0">
+                <span className="status-label block font-semibold text-[#0e1f42] mb-1">
+                  Messages
+                </span>
+                <span className="status-value text-sm text-[#64748b]" id="messagesStatus">
+                  {statusData.messages}
+                </span>
+              </div>
+              
+              {statusData.messagesBadge > 0 && (
+                <div className="status-badge bg-[#9f7539] text-white text-xs font-bold px-2.5 py-1.5 rounded min-w-[28px] text-center" id="messagesBadge">
+                  {statusData.messagesBadge > 99 ? '99+' : statusData.messagesBadge}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
