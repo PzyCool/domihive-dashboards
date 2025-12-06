@@ -1,0 +1,202 @@
+/* Import Font Awesome */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+/* Import Tailwind */
+@import "tailwindcss";
+
+:root {
+  --primary: #0e1f42;
+  --accent: #9f7539;
+  --accent-light: #b58a4a;
+  --light-gray: #f8fafc;
+  --gray-light: #e2e8f0;
+  --gray: #64748b;
+  --dark-gray: #334155;
+}
+
+/* Custom animations */
+@keyframes slide-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Hide scrollbars but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Form specific styles */
+.form-scroll-area {
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.form-scroll-area::-webkit-scrollbar {
+  display: none;
+}
+
+/* Custom focus styles */
+input:focus, select:focus, textarea:focus, button:focus {
+  outline: none;
+  ring-width: 2px;
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Password strength indicator styles */
+.strength-bar {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Loading states */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+
+
+/* Dashboard Layout Styles */
+.dashboard-layout {
+  font-family: 'Manrope', sans-serif;
+}
+
+/* Ensure the dashboard content takes full height */
+.dashboard-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--light-gray);
+}
+
+/* Mobile sidebar overlay */
+.mobile-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+  display: none;
+}
+
+.mobile-sidebar-overlay.active {
+  display: block;
+}
+
+/* Fix for sidebar positioning */
+.dashboard-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 50;
+  overflow-y: auto;
+}
+
+/* Smooth transitions */
+.dashboard-sidebar,
+.dashboard-main {
+  transition: all 0.3s ease;
+}
+
+/* Prevent body scrolling when mobile sidebar is open */
+body.sidebar-open {
+  overflow: hidden;
+}
+
+/* For the overview content specifically */
+.overview-content {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .overview-content {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .overview-content {
+    padding: 2.5rem;
+  }
+}
+
+
