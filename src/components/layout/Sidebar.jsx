@@ -8,6 +8,15 @@ const Sidebar = ({ sidebarState, toggleSidebar, closeMobileSidebar, isMobile, cu
   const { user, logout } = useAuth();
   const location = useLocation();
   const sidebarNavRef = useRef(null);
+  const activeLinkRef = useRef(null);
+  
+  // Image paths constants
+  const IMAGES = {
+    icon: "/src/assets/domihive-lcon.png",  // Fixed: lcon not icon
+    logo: "/src/assets/domihive-logo.png",
+    placeholderIcon: 'https://via.placeholder.com/28?text=DH',
+    placeholderLogo: 'https://via.placeholder.com/150x32?text=DomiHive'
+  };
   
   // Get dashboard-specific navigation items - MATCHING HTML STRUCTURE
   const getDashboardNavItems = () => {
@@ -36,38 +45,90 @@ const Sidebar = ({ sidebarState, toggleSidebar, closeMobileSidebar, isMobile, cu
 
   const navItems = getDashboardNavItems();
 
-  // Auto-scroll to active nav item
+  // Auto-scroll to active nav item with improved logic
   useEffect(() => {
     const sidebarNav = sidebarNavRef.current;
     if (!sidebarNav) return;
 
-    // Find active link
-    const activeLink = sidebarNav.querySelector('.nav-link.active');
-    if (activeLink) {
-      // Add scroll highlight class
-      activeLink.classList.add('scroll-highlight');
+    // Small delay to ensure DOM is updated with active class
+    setTimeout(() => {
+      // Find active link
+      const activeLink = sidebarNav.querySelector('.nav-link.active');
+      if (!activeLink) return;
+
+      // Store reference for cleanup
+      activeLinkRef.current = activeLink;
       
       // Calculate scroll position
       const navRect = sidebarNav.getBoundingClientRect();
       const linkRect = activeLink.getBoundingClientRect();
-      const linkTopRelativeToNav = linkRect.top - navRect.top;
-      const navMiddle = navRect.height / 2;
+      const navScrollTop = sidebarNav.scrollTop;
+      const linkTopRelativeToNav = linkRect.top - navRect.top + navScrollTop;
       
-      // Calculate scroll position to center the active item
-      const targetScrollTop = sidebarNav.scrollTop + linkTopRelativeToNav - navMiddle + (linkRect.height / 2);
+      // Calculate middle position
+      const targetScrollTop = linkTopRelativeToNav - (navRect.height / 2) + (linkRect.height / 2);
       
-      // Smooth scroll to position
-      sidebarNav.scrollTo({
-        top: targetScrollTop,
-        behavior: 'smooth'
-      });
+      // Only scroll if link is not in viewport
+      const isInView = (
+        linkTopRelativeToNav >= navScrollTop && 
+        linkTopRelativeToNav <= navScrollTop + navRect.height - linkRect.height
+      );
+      
+      if (!isInView) {
+        // Smooth scroll to position
+        sidebarNav.scrollTo({
+          top: targetScrollTop,
+          behavior: 'smooth'
+        });
+      }
+      
+      // Add highlight effect
+      activeLink.classList.add('scroll-highlight');
       
       // Remove highlight after animation
       setTimeout(() => {
-        activeLink.classList.remove('scroll-highlight');
-      }, 1500);
+        if (activeLinkRef.current === activeLink) {
+          activeLink.classList.remove('scroll-highlight');
+        }
+      }, 1000);
+    }, 100);
+  }, [location.pathname, sidebarState]);
+
+  // Handle nav link click for auto-scroll
+  const handleNavClick = (e) => {
+    // Close mobile sidebar if on mobile
+    if (isMobile && closeMobileSidebar) {
+      closeMobileSidebar();
     }
-  }, [location.pathname]);
+    
+    const clickedLink = e.currentTarget;
+    const sidebarNav = sidebarNavRef.current;
+    
+    if (!sidebarNav) return;
+    
+    // Calculate scroll position
+    const navRect = sidebarNav.getBoundingClientRect();
+    const linkRect = clickedLink.getBoundingClientRect();
+    const navScrollTop = sidebarNav.scrollTop;
+    const linkTopRelativeToNav = linkRect.top - navRect.top + navScrollTop;
+    
+    // Calculate middle position
+    const targetScrollTop = linkTopRelativeToNav - (navRect.height / 2) + (linkRect.height / 2);
+    
+    // Smooth scroll to position
+    sidebarNav.scrollTo({
+      top: targetScrollTop,
+      behavior: 'smooth'
+    });
+    
+    // Add highlight effect
+    clickedLink.classList.add('scroll-highlight');
+    
+    // Remove highlight after animation
+    setTimeout(() => {
+      clickedLink.classList.remove('scroll-highlight');
+    }, 1000);
+  };
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to logout?')) {
@@ -83,6 +144,47 @@ const Sidebar = ({ sidebarState, toggleSidebar, closeMobileSidebar, isMobile, cu
   const isCollapsed = sidebarState === 'collapsed';
   const isHidden = sidebarState === 'hidden';
   const isMobileOpen = sidebarState === 'mobile-open';
+
+  // Add CSS for scroll highlight effect
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .nav-link.scroll-highlight {
+        animation: highlight-pulse 1s ease-in-out;
+        box-shadow: 0 0 0 2px rgba(159, 117, 57, 0.3);
+      }
+      
+      @keyframes highlight-pulse {
+        0% { box-shadow: 0 0 0 0px rgba(159, 117, 57, 0.3); }
+        50% { box-shadow: 0 0 0 4px rgba(159, 117, 57, 0.5); }
+        100% { box-shadow: 0 0 0 2px rgba(159, 117, 57, 0.3); }
+      }
+      
+      /* Custom scrollbar styling */
+      .sidebar-nav::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      .sidebar-nav::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+      }
+      
+      .sidebar-nav::-webkit-scrollbar-thumb {
+        background: rgba(159, 117, 57, 0.4);
+        border-radius: 3px;
+      }
+      
+      .sidebar-nav::-webkit-scrollbar-thumb:hover {
+        background: rgba(159, 117, 57, 0.6);
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   return (
     <>
@@ -115,23 +217,23 @@ const Sidebar = ({ sidebarState, toggleSidebar, closeMobileSidebar, isMobile, cu
             {isCollapsed && !isMobile ? (
               /* COLLAPSED STATE: Show icon logo */
               <img 
-                src="/src/assets/domihive-icon.png" 
+                src={IMAGES.icon}
                 alt="DomiHive Icon"
                 className="h-7 w-auto transition-all duration-300"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = 'https://via.placeholder.com/28?text=DH';
+                  e.target.src = IMAGES.placeholderIcon;
                 }}
               />
             ) : (
               /* EXPANDED STATE: Show full logo */
               <img 
-                src="/src/assets/domihive-logo.png" 
+                src={IMAGES.logo}
                 alt="DomiHive"
                 className="h-8 w-auto transition-all duration-300"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = 'https://via.placeholder.com/150x32?text=DomiHive';
+                  e.target.src = IMAGES.placeholderLogo;
                 }}
               />
             )}
@@ -168,7 +270,7 @@ const Sidebar = ({ sidebarState, toggleSidebar, closeMobileSidebar, isMobile, cu
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  onClick={closeMobileSidebar}
+                  onClick={handleNavClick}
                   className={({ isActive }) => 
                     `nav-link flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                     ${isCollapsed ? 'justify-center px-0' : ''}
@@ -205,7 +307,7 @@ const Sidebar = ({ sidebarState, toggleSidebar, closeMobileSidebar, isMobile, cu
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  onClick={closeMobileSidebar}
+                  onClick={handleNavClick}
                   className={({ isActive }) => 
                     `nav-link flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 relative
                     ${isCollapsed ? 'justify-center px-0' : ''}
@@ -255,7 +357,7 @@ const Sidebar = ({ sidebarState, toggleSidebar, closeMobileSidebar, isMobile, cu
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  onClick={closeMobileSidebar}
+                  onClick={handleNavClick}
                   className={({ isActive }) => 
                     `nav-link flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                     ${isCollapsed ? 'justify-center px-0' : ''}
