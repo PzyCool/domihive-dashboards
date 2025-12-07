@@ -6,6 +6,7 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
 import RentOverview from './dashboards/rent/pages/RentOverview';
+import RentBrowse from './dashboards/rent/pages/RentBrowse';
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
             <Route path="rent">
               <Route index element={<Navigate to="overview" />} />
               <Route path="overview" element={<RentOverview />} />
-              <Route path="browse" element={<div>Rent Browse Properties Page</div>} />
+              <Route path="browse" element={<RentBrowse />} /> 
               <Route path="applications" element={<div>Rent Applications Page</div>} />
               <Route path="my-properties" element={<div>Rent My Properties Page</div>} />
               <Route path="maintenance" element={<div>Rent Maintenance Page</div>} />

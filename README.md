@@ -1,3 +1,38 @@
+
+src/dashboards/rent/pages/RentBrowse.jsx                    # MAIN PAGE (already exists, will modify)
+src/dashboards/rent/components/browse-properties/          # NEW FOLDER
+├── components/
+│   ├── HeroSearchSection/
+│   │   ├── HeroSearchSection.jsx
+│   │   ├── ManagementTypeToggle.jsx
+│   │   └── SearchFilters.jsx
+│   ├── PropertyFilters/
+│   │   ├── PropertyFilters.jsx
+│   │   ├── AdvancedFiltersModal.jsx
+│   │   └── FilterOptions.jsx
+│   ├── PropertyGrid/
+│   │   ├── PropertyGrid.jsx
+│   │   ├── PropertyCard.jsx
+│   │   ├── GridPagination.jsx
+│   │   └── ViewToggle.jsx
+│   └── SortOptions/
+│       └── SortOptions.jsx
+├── hooks/
+│   ├── usePropertyFilters.js
+│   ├── useProperties.js
+│   └── usePagination.js
+├── utils/
+│   ├── propertyData.js          # Mock data with Nigerian properties
+│   ├── propertyFilters.js
+│   └── constants.js
+
+
+
+
+
+
+
+
 src/
 ├───dashboards/                    # ← NEW MAIN FOLDER
 │   ├───rent/
