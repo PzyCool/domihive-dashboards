@@ -3,7 +3,7 @@ import { generateNigerianProperties } from '../components/browse-properties/util
 import { VIEW_TYPES, SORT_OPTIONS, ITEMS_PER_PAGE } from '../components/browse-properties/utils/constants';
 
 // Components to be created (commented out for now)
-// import HeroSearchSection from '../components/browse-properties/components/HeroSearchSection/HeroSearchSection';
+import HeroSearchSection from '../components/browse-properties/components/HeroSearchSection/HeroSearchSection';
 import PropertyGrid from '../components/browse-properties/components/PropertyGrid/PropertyGrid';
 // import SortOptions from '../components/browse-properties/components/SortOptions/SortOptions';
 // import PropertyFilters from '../components/browse-properties/components/PropertyFilters/PropertyFilters';
@@ -214,12 +214,10 @@ const RentBrowse = () => {
         </p>
       </div>
       
-      {/* Hero Search Placeholder - Simple */}
-      <div className="mb-10 bg-gradient-to-r from-[#0e1f42] to-[#1a2d5f] rounded-lg p-8 text-center text-white">
-        <i className="fas fa-search text-4xl mb-4 opacity-80"></i>
-        <h2 className="text-2xl font-bold mb-2">Search Nigerian Properties</h2>
-        <p className="opacity-90">Coming soon with advanced filters</p>
-      </div>
+      <HeroSearchSection 
+  filters={filters}
+  onFilterChange={handleFilterChange}
+/>
       
       {/* Property Grid Section */}
       <div className="mb-10">
