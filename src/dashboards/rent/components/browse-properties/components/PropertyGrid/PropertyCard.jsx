@@ -37,27 +37,36 @@ const PropertyCard = ({ property, onViewDetails, onToggleFavorite }) => {
   // Handle next image
   const handleNextImage = (e) => {
     e.stopPropagation();
-    if (property.images && property.images.length > 1) {
-      setCurrentImageIndex((currentImageIndex + 1) % property.images.length);
+    if (property.amenities && property.amenities.length > 1) {
+      setCurrentImageIndex((currentImageIndex + 1) % property.amenities.length);
     }
+  };
+  
+  // Shorten amenities to fit
+  const getShortAmenities = () => {
+    if (!property.amenities) return [];
+    // Take only first 2 amenities, shorten if needed
+    return property.amenities.slice(0, 2).map(amenity => 
+      amenity.length > 20 ? amenity.substring(0, 20) + '...' : amenity
+    );
   };
   
   return (
     <div 
-      className="property-card bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 hover:translate-y-[-4px] cursor-pointer"
+      className="property-card bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px] cursor-pointer"
       style={{
         width: '100%',
         maxWidth: '465px',
-        height: '651px',
+        height: '580px', // Reduced from 651px to 580px
         display: 'flex',
         flexDirection: 'column'
       }}
     >
-      {/* Property Image Section */}
+      {/* Property Image Section - 40% of card */}
       <div 
-        className="relative overflow-hidden"
+        className="relative"
         style={{
-          height: '250px',
+          height: '232px', // 40% of 580px
           flexShrink: 0
         }}
       >
@@ -71,29 +80,18 @@ const PropertyCard = ({ property, onViewDetails, onToggleFavorite }) => {
           }}
         />
         
-        {/* Image Navigation */}
-        {property.images && property.images.length > 1 && (
-          <button
-            onClick={handleNextImage}
-            className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform"
-            title="View next image"
-          >
-            <i className="fas fa-images text-gray-700 text-sm"></i>
-          </button>
-        )}
-        
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
+        <div className="absolute top-3 left-3 flex flex-col gap-1">
           <div 
-            className="px-3 py-1.5 rounded-md text-white text-xs font-bold shadow-sm"
+            className="px-2 py-1 rounded text-white text-xs font-bold shadow-sm"
             style={{ backgroundColor: managementColor }}
           >
-            {managementLabel.toUpperCase()}
+            {managementLabel}
           </div>
           
           {property.isVerified && (
-            <div className="px-3 py-1.5 bg-green-500 rounded-md text-white text-xs font-bold shadow-sm">
-              VERIFIED
+            <div className="px-2 py-1 bg-green-500 rounded text-white text-xs font-bold shadow-sm">
+              ✓ VERIFIED
             </div>
           )}
         </div>
@@ -101,63 +99,57 @@ const PropertyCard = ({ property, onViewDetails, onToggleFavorite }) => {
         {/* Favorite Button */}
         <button
           onClick={handleFavoriteClick}
-          className="absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:scale-110 transition-transform"
+          className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:scale-110 transition-transform"
           title={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
-          <i className={`fas fa-heart ${isFavorite ? 'text-red-500' : 'text-gray-500'} text-lg`}></i>
+          <i className={`fas fa-heart ${isFavorite ? 'text-red-500' : 'text-gray-500'} text-sm`}></i>
         </button>
-      </div>
-      
-      {/* Property Details - Scrollable if needed */}
-      <div className="p-5 flex-1 flex flex-col overflow-hidden">
-        {/* Price */}
-        <div className="mb-3">
-          <div className="text-2xl font-bold text-gray-800">
+        
+        {/* Price Overlay */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+          <div className="text-xl font-bold text-white">
             {formatPrice(property.price)}
           </div>
-          {property.maintenanceIncluded && (
-            <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-medium inline-block mt-1">
-              <i className="fas fa-tools mr-1"></i>
-              Maintenance Included
-            </div>
-          )}
         </div>
-        
-        {/* Title */}
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2" style={{ minHeight: '3.5rem' }}>
+      </div>
+      
+      {/* Property Details - 60% of card */}
+      <div className="p-4 flex-1 flex flex-col" style={{ height: '348px' }}>
+        {/* Title - Fixed height */}
+        <h3 className="text-base font-semibold text-gray-800 mb-2 line-clamp-2" style={{ height: '48px' }}>
           {property.title}
         </h3>
         
-        {/* Location */}
-        <div className="flex items-center gap-2 text-gray-600 mb-4">
-          <i className="fas fa-map-marker-alt text-[#9f7539] flex-shrink-0"></i>
-          <span className="text-sm line-clamp-1">{property.location}</span>
+        {/* Location - Fixed height */}
+        <div className="flex items-start gap-2 text-gray-600 mb-3" style={{ height: '40px' }}>
+          <i className="fas fa-map-marker-alt text-[#9f7539] mt-1 flex-shrink-0"></i>
+          <span className="text-sm line-clamp-2">{property.location}</span>
         </div>
         
-        {/* Property Features */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <div className="flex flex-col items-center p-2 bg-gray-50 rounded-lg">
-            <i className="fas fa-bed text-[#9f7539] mb-1"></i>
+        {/* Property Features - Compact */}
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          <div className="flex flex-col items-center p-2 bg-gray-50 rounded">
+            <i className="fas fa-bed text-[#9f7539] text-sm mb-1"></i>
             <span className="text-sm font-semibold text-gray-800">{property.bedrooms}</span>
             <span className="text-xs text-gray-600">Beds</span>
           </div>
-          <div className="flex flex-col items-center p-2 bg-gray-50 rounded-lg">
-            <i className="fas fa-bath text-[#9f7539] mb-1"></i>
+          <div className="flex flex-col items-center p-2 bg-gray-50 rounded">
+            <i className="fas fa-bath text-[#9f7539] text-sm mb-1"></i>
             <span className="text-sm font-semibold text-gray-800">{property.bathrooms}</span>
             <span className="text-xs text-gray-600">Baths</span>
           </div>
-          <div className="flex flex-col items-center p-2 bg-gray-50 rounded-lg">
-            <i className="fas fa-ruler-combined text-[#9f7539] mb-1"></i>
+          <div className="flex flex-col items-center p-2 bg-gray-50 rounded">
+            <i className="fas fa-ruler-combined text-[#9f7539] text-sm mb-1"></i>
             <span className="text-sm font-semibold text-gray-800">{property.size}</span>
             <span className="text-xs text-gray-600">Size</span>
           </div>
         </div>
         
-        {/* Key Features - Limited to 2-3 items */}
-        <div className="mb-4 flex-1">
-          <div className="text-sm font-medium text-gray-700 mb-2">Key Features:</div>
-          <div className="flex flex-wrap gap-2">
-            {property.amenities?.slice(0, 3).map((amenity, index) => (
+        {/* Key Features - Limited and fixed height */}
+        <div className="mb-3" style={{ height: '60px' }}>
+          <div className="text-sm font-medium text-gray-700 mb-1">Features:</div>
+          <div className="flex flex-wrap gap-1">
+            {getShortAmenities().map((amenity, index) => (
               <span 
                 key={index} 
                 className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
@@ -165,15 +157,34 @@ const PropertyCard = ({ property, onViewDetails, onToggleFavorite }) => {
                 {amenity}
               </span>
             ))}
+            {property.amenities && property.amenities.length > 2 && (
+              <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                +{property.amenities.length - 2}
+              </span>
+            )}
           </div>
         </div>
         
+        {/* Property Type and Date */}
+        <div className="mb-4 flex justify-between items-center" style={{ height: '24px' }}>
+          <span className="text-xs text-gray-600 font-medium">
+            <i className="fas fa-home mr-1"></i>
+            {property.propertyType}
+          </span>
+          <span className="text-xs text-gray-500">
+            {new Date(property.dateAdded).toLocaleDateString('en-NG', { 
+              month: 'short', 
+              day: 'numeric'
+            })}
+          </span>
+        </div>
+        
         {/* Action Buttons - ALWAYS VISIBLE AT BOTTOM */}
-        <div className="mt-auto pt-4 border-t border-gray-100">
+        <div className="mt-auto">
           <div className="flex gap-2">
             <button
               onClick={handleViewDetails}
-              className="flex-1 bg-[#0e1f42] text-white font-medium py-3 rounded-lg hover:bg-[#1a2d5f] transition-colors flex items-center justify-center gap-2"
+              className="flex-1 bg-[#0e1f42] text-white font-medium py-2.5 rounded-lg hover:bg-[#1a2d5f] transition-colors flex items-center justify-center gap-2 text-sm"
             >
               <i className="fas fa-eye"></i>
               View Details
@@ -183,22 +194,12 @@ const PropertyCard = ({ property, onViewDetails, onToggleFavorite }) => {
                 e.stopPropagation();
                 console.log('Book inspection for:', property.id);
               }}
-              className="flex-1 bg-[#9f7539] text-white font-medium py-3 rounded-lg hover:bg-[#b58a4a] transition-colors flex items-center justify-center gap-2"
+              className="flex-1 bg-[#9f7539] text-white font-medium py-2.5 rounded-lg hover:bg-[#b58a4a] transition-colors flex items-center justify-center gap-2 text-sm"
             >
               <i className="fas fa-calendar-check"></i>
               Book Now
             </button>
           </div>
-        </div>
-        
-        {/* Footer */}
-        <div className="mt-3 text-center">
-          <span className="text-xs text-gray-500">
-            {property.propertyType} • Added {new Date(property.dateAdded).toLocaleDateString('en-NG', { 
-              month: 'short', 
-              day: 'numeric'
-            })}
-          </span>
         </div>
       </div>
     </div>
