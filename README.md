@@ -1,4 +1,53 @@
 
+
+SearchHeader/
+├── SearchHeader.jsx              ← Main entry point
+├── PrimaryRow.jsx                ← Always visible controls
+├── SecondaryRow.jsx              ← Expandable filters
+├── components/                   ← All small components
+│   ├── SearchBar.jsx
+│   ├── FilterBadge.jsx
+│   ├── ViewToggle.jsx
+│   ├── ManagementDropdown.jsx
+│   ├── ExpandButton.jsx
+│   ├── AreaToggle.jsx
+│   ├── LocationDropdown.jsx
+│   ├── PropertyTypeDropdown.jsx
+│   ├── PriceRangeDropdown.jsx
+│   ├── BedroomsDropdown.jsx
+│   ├── ApplyFiltersButton.jsx
+│   └── ClearButton.jsx
+└── hooks/
+    └── useSearchHeader.js        ← Manages expand/collapse, animations
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 src/dashboards/rent/pages/RentBrowse.jsx                    # MAIN PAGE (already exists, will modify)
 src/dashboards/rent/components/browse-properties/          # NEW FOLDER
 ├── components/

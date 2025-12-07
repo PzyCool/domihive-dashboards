@@ -1,12 +1,11 @@
+// src/dashboards/rent/pages/RentBrowse.jsx
 import React, { useState, useEffect } from 'react';
 import { generateNigerianProperties } from '../components/browse-properties/utils/propertyData';
 import { VIEW_TYPES, SORT_OPTIONS, ITEMS_PER_PAGE } from '../components/browse-properties/utils/constants';
 
-// Components to be created (commented out for now)
-import HeroSearchSection from '../components/browse-properties/components/HeroSearchSection/HeroSearchSection';
+// Correct imports based on your folder structure
+import SearchHeader from '../components/browse-properties/components/SearchHeader/SearchHeader';
 import PropertyGrid from '../components/browse-properties/components/PropertyGrid/PropertyGrid';
-// import SortOptions from '../components/browse-properties/components/SortOptions/SortOptions';
-// import PropertyFilters from '../components/browse-properties/components/PropertyFilters/PropertyFilters';
 
 const RentBrowse = () => {
   // State for properties
@@ -14,14 +13,15 @@ const RentBrowse = () => {
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [displayedProperties, setDisplayedProperties] = useState([]);
   
-  // Filter states
+  // Filter states - UPDATED to match SearchHeader needs
   const [filters, setFilters] = useState({
-    managementType: 'all',
+    searchQuery: '',
     areaType: 'all',
     location: 'all',
+    propertyType: 'all',
     bedrooms: 'all',
     priceRange: 'all',
-    searchQuery: '',
+    managementType: 'all',
     sortBy: 'newest'
   });
   
@@ -66,7 +66,7 @@ const RentBrowse = () => {
     setDisplayedProperties(properties.slice(startIndex, endIndex));
   };
   
-  // Handle filter changes
+  // Handle filter changes - UPDATED for SearchHeader
   const handleFilterChange = (newFilters) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
     setCurrentPage(1); // Reset to first page on filter change
@@ -77,6 +77,16 @@ const RentBrowse = () => {
     if (allProperties.length === 0) return;
     
     let filtered = [...allProperties];
+    
+    // Apply search query filter
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      filtered = filtered.filter(property => 
+        property.title.toLowerCase().includes(query) ||
+        property.location.toLowerCase().includes(query) ||
+        property.description.toLowerCase().includes(query)
+      );
+    }
     
     // Apply management type filter
     if (filters.managementType !== 'all') {
@@ -99,6 +109,13 @@ const RentBrowse = () => {
       );
     }
     
+    // Apply property type filter
+    if (filters.propertyType !== 'all') {
+      filtered = filtered.filter(property => 
+        property.propertyType.toLowerCase() === filters.propertyType.toLowerCase()
+      );
+    }
+    
     // Apply bedrooms filter
     if (filters.bedrooms !== 'all') {
       if (filters.bedrooms === '4') {
@@ -114,7 +131,9 @@ const RentBrowse = () => {
     if (filters.priceRange !== 'all') {
       const [min, max] = filters.priceRange.split('-').map(str => {
         if (str.includes('+')) return parseInt(str.replace('+', '')) + 1;
-        return parseInt(str);
+        // Handle Nigerian price format like "₦1M - ₦3M/year"
+        const num = str.replace('₦', '').replace('M', '000000').replace('/year', '').trim();
+        return parseInt(num);
       });
       
       filtered = filtered.filter(property => {
@@ -123,16 +142,6 @@ const RentBrowse = () => {
         }
         return property.price >= min && property.price <= max;
       });
-    }
-    
-    // Apply search query
-    if (filters.searchQuery) {
-      const query = filters.searchQuery.toLowerCase();
-      filtered = filtered.filter(property => 
-        property.title.toLowerCase().includes(query) ||
-        property.location.toLowerCase().includes(query) ||
-        property.description.toLowerCase().includes(query)
-      );
     }
     
     // Apply sorting
@@ -176,16 +185,14 @@ const RentBrowse = () => {
     setViewType(type);
   };
   
-  // Handle property click (view details)
+  // Handle property click
   const handlePropertyClick = (propertyId) => {
     console.log('View property details:', propertyId);
-    // Will implement navigation to property details later
   };
   
   // Handle favorite toggle
-  const handleFavoriteToggle = (propertyId) => {
-    console.log('Toggle favorite:', propertyId);
-    // Will implement favorite logic later
+  const handleFavoriteToggle = (propertyId, isFavorite) => {
+    console.log('Toggle favorite:', propertyId, isFavorite);
   };
   
   if (isLoading) {
@@ -204,71 +211,80 @@ const RentBrowse = () => {
   }
   
   return (
-    <div className="rent-browse-container min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6">
-    <div className="bg-white rounded-lg shadow-md border border-[#e2e8f0] p-4 md:p-6">
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#0e1f42] mb-2">Browse Properties</h1>
-        <p className="text-gray-600">
-          Showing {displayedProperties.length} of {filteredProperties.length} properties
-        </p>
-      </div>
+    <div className="rent-browse-container min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* NEW: SearchHeader replaces HeroSearchSection */}
+      <SearchHeader 
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        viewType={viewType}
+        onViewToggle={handleViewToggle}
+      />
       
-      <HeroSearchSection 
-  filters={filters}
-  onFilterChange={handleFilterChange}
-/>
-      
-      {/* Property Grid Section */}
-      <div className="mb-10">
-        <PropertyGrid 
-          properties={displayedProperties}
-          viewType={viewType}
-          onPropertyClick={handlePropertyClick}
-          onFavoriteToggle={handleFavoriteToggle}
-        />
-      </div>
-      
-      {/* Simple Pagination */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div className="text-gray-600">
-          Page {currentPage} of {totalPages}
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50"
-          >
-            Previous
-          </button>
+      {/* Main Content Area */}
+      <div className="p-4 md:p-6">
+        <div className="bg-white rounded-lg shadow-md border border-[#e2e8f0] p-4 md:p-6">
+          {/* Page Header Stats */}
+          <div className="mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-[#0e1f42] mb-2">
+              Browse Properties
+            </h1>
+            <p className="text-gray-600">
+              Showing {displayedProperties.length} of {filteredProperties.length} properties
+              {filters.areaType !== 'all' && ` in ${filters.areaType === 'island' ? 'Lagos Island' : 'Lagos Mainland'}`}
+            </p>
+          </div>
           
-          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => i + 1).map(page => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`w-10 h-10 rounded-lg ${currentPage === page ? 'bg-[#0e1f42] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
-            >
-              {page}
-            </button>
-          ))}
+          {/* Property Grid Section */}
+          <div className="mb-10">
+            <PropertyGrid 
+              properties={displayedProperties}
+              viewType={viewType}
+              onPropertyClick={handlePropertyClick}
+              onFavoriteToggle={handleFavoriteToggle}
+            />
+          </div>
           
-          <button
-            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-        
-        <div className="text-sm text-gray-600">
-          {ITEMS_PER_PAGE} per page
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="text-gray-600">
+              Page {currentPage} of {totalPages}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+              >
+                Previous
+              </button>
+              
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`w-10 h-10 rounded-lg ${currentPage === page ? 'bg-[#0e1f42] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+                >
+                  {page}
+                </button>
+              ))}
+              
+              <button
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+            
+            <div className="text-sm text-gray-600">
+              {ITEMS_PER_PAGE} per page
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
   );
 };
 
