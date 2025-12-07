@@ -1,9 +1,16 @@
 import React from 'react';
 
 const FilterBadge = ({ count, onClick }) => {
+  const handleClick = (e) => {
+    e.preventDefault(); // Prevent any default behavior
+    e.stopPropagation(); // Stop event bubbling
+    if (onClick) onClick();
+  };
+  
   return (
     <button
-      onClick={onClick}
+      type="button" // IMPORTANT: Add this
+      onClick={handleClick}
       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
     >
       <i className="fas fa-filter text-gray-700"></i>

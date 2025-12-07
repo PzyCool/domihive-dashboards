@@ -212,16 +212,18 @@ const RentBrowse = () => {
   
   return (
     <div className="rent-browse-container min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* NEW: SearchHeader replaces HeroSearchSection */}
-      <SearchHeader 
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        viewType={viewType}
-        onViewToggle={handleViewToggle}
-      />
+  {/* ADD THIS WRAPPER DIV */}
+  <div className="relative">
+    <SearchHeader 
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      viewType={viewType}
+      onViewToggle={handleViewToggle}
+    />
+  </div>
       
       {/* Main Content Area */}
-      <div className="p-4 md:p-6">
+      <div className="pt-16 p-4 md:p-6">
         <div className="bg-white rounded-lg shadow-md border border-[#e2e8f0] p-4 md:p-6">
           {/* Page Header Stats */}
           <div className="mb-6">

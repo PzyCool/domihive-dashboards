@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchHeader } from './hooks/useSearchHeader';
 import PrimaryRow from './PrimaryRow';
-// import SecondaryRow from './SecondaryRow';
+import SecondaryRow from './SecondaryRow';
 
 const SearchHeader = ({ 
   filters, 
@@ -12,8 +12,8 @@ const SearchHeader = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   
-  // Use custom hook for animations and sticky behavior
-  const { headerRef, isSticky, shouldShow } = useSearchHeader();
+  // Use custom hook for sticky behavior
+  const { headerRef } = useSearchHeader();
   
   // Calculate active filters count
   useEffect(() => {
@@ -57,19 +57,14 @@ const SearchHeader = ({
     }
   };
   
-  if (!shouldShow) return null;
-  
   return (
-    <div 
-      ref={headerRef}
-      className={`
-        search-header
-        bg-white border-b border-gray-200
-        transition-all duration-300 ease-in-out
-        ${isSticky ? 'sticky top-0 z-40 shadow-md' : 'relative'}
-        ${isExpanded ? 'expanded' : 'collapsed'}
-      `}
-    >
+ <div 
+  ref={headerRef}
+  className="search-header sticky top-16 z-40 bg-white border-b border-gray-200" // Change top-0 to top-16
+  style={{
+    borderBottom: '2px solid rgba(159, 117, 57, 0.3)'
+  }}
+>
       {/* Primary Row - Always Visible */}
       <PrimaryRow
         filters={filters}
@@ -81,14 +76,20 @@ const SearchHeader = ({
         onToggleExpand={handleToggleExpand}
       />
       
-      {/* Secondary Row - Expandable Filters */}
-      {isExpanded && (
-        <SecondaryRow
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onClearFilters={handleClearFilters}
-        />
-      )}
+      {/* Secondary Row - Expandable Filters with slide animation */}
+      <div 
+        className={`overflow-hidden transition-all duration-300 ease-out ${
+          isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        {isExpanded && (
+          <SecondaryRow
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onClearFilters={handleClearFilters}
+          />
+        )}
+      </div>
     </div>
   );
 };
