@@ -12,9 +12,6 @@ const SearchHeader = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   
-  // Use custom hook for sticky behavior
-  const { headerRef } = useSearchHeader();
-  
   // Calculate active filters count
   useEffect(() => {
     let count = 0;
@@ -52,19 +49,21 @@ const SearchHeader = ({
         bedrooms: 'all',
         priceRange: 'all',
         managementType: 'all',
-        searchQuery: filters.searchQuery || '' // Keep search query
+        searchQuery: filters.searchQuery || ''
       });
     }
   };
   
   return (
- <div 
-  ref={headerRef}
-  className="search-header sticky top-16 z-40 bg-white border-b border-gray-200" // Change top-0 to top-16
-  style={{
-    borderBottom: '2px solid rgba(159, 117, 57, 0.3)'
-  }}
->
+    <div 
+      className="search-header fixed top-16 z-40 bg-white border-b border-gray-200"
+      style={{
+        borderBottom: '2px solid rgba(159, 117, 57, 0.3)',
+        left: '20%',
+        right: '0',
+        maxWidth: '100%'
+      }}
+    >
       {/* Primary Row - Always Visible */}
       <PrimaryRow
         filters={filters}
@@ -76,12 +75,14 @@ const SearchHeader = ({
         onToggleExpand={handleToggleExpand}
       />
       
-      {/* Secondary Row - Expandable Filters with slide animation */}
-      <div 
-        className={`overflow-hidden transition-all duration-300 ease-out ${
-          isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
+      {/* Secondary Row - Slide Down Animation */}
+      <div className={`
+        transition-all duration-300 ease-out
+        ${isExpanded 
+          ? 'max-h-96 opacity-100 translate-y-0' 
+          : 'max-h-0 opacity-0 -translate-y-2'
+        }
+      `}>
         {isExpanded && (
           <SecondaryRow
             filters={filters}
