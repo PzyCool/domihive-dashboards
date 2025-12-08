@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchHeader } from './hooks/useSearchHeader';
 import PrimaryRow from './PrimaryRow';
 import SecondaryRow from './SecondaryRow';
 
@@ -36,9 +35,14 @@ const SearchHeader = ({
   
   // Handle expand/collapse
   const handleToggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
+  const newExpandedState = !isExpanded;
+  setIsExpanded(newExpandedState);
   
+  // Tell parent about expansion state
+  if (onFilterChange) {
+    onFilterChange({ isExpanded: newExpandedState });
+  }
+};
   // Handle clear all filters
   const handleClearFilters = () => {
     if (onFilterChange) {

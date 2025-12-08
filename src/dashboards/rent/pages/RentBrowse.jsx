@@ -14,16 +14,17 @@ const RentBrowse = () => {
   const [displayedProperties, setDisplayedProperties] = useState([]);
   
   // Filter states - UPDATED to match SearchHeader needs
-  const [filters, setFilters] = useState({
-    searchQuery: '',
-    areaType: 'all',
-    location: 'all',
-    propertyType: 'all',
-    bedrooms: 'all',
-    priceRange: 'all',
-    managementType: 'all',
-    sortBy: 'newest'
-  });
+const [filters, setFilters] = useState({
+  searchQuery: '',
+  areaType: 'all',
+  location: 'all',
+  propertyType: 'all',
+  bedrooms: 'all',
+  priceRange: 'all',
+  managementType: 'all',
+  sortBy: 'newest',
+  isExpanded: false // ADD THIS
+});
   
   // View states
   const [viewType, setViewType] = useState(VIEW_TYPES.GRID);
@@ -223,7 +224,11 @@ return (
     </div>
     
     {/* DYNAMIC SPACER - ADD THIS LINE */}
-    <div className={`transition-all duration-300 ease-out ${filters.isExpanded ? 'h-32' : 'h-16'}`}></div>
+    <div 
+      className={`transition-all duration-300 ease-out ${
+        filters.isExpanded ? 'h-24' : 'h-0'
+      }`}
+    ></div>
     
     {/* Main Content Area */}
     <div className="mt-12 p-4 md:p-6 gap-6">
