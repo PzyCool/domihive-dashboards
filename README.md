@@ -1,3 +1,53 @@
+src/dashboards/rent/components/property-details/
+├── PropertyDetailsModal.jsx          # Main modal container
+├── components/                       # All sub-components
+│   ├── PropertyGallery/              # Carousel section
+│   │   ├── PropertyGallery.jsx
+│   │   ├── CarouselControls.jsx
+│   │   └── ThumbnailGallery.jsx
+│   ├── PropertyHeader/               # Title, price, badges
+│   │   ├── PropertyHeader.jsx
+│   │   └── KeyFeatures.jsx
+│   ├── PropertyTabs/                 # Tab navigation
+│   │   ├── PropertyTabs.jsx
+│   │   └── TabNavigation.jsx
+│   ├── tabs/                         # Individual tab contents
+│   │   ├── DetailsTab/
+│   │   │   ├── DetailsTab.jsx
+│   │   │   ├── PropertyDescription.jsx
+│   │   │   └── Specifications.jsx
+│   │   ├── MediaTab/
+│   │   │   ├── MediaTab.jsx
+│   │   │   ├── RoomGallery.jsx
+│   │   │   └── VideoSection.jsx
+│   │   ├── ReviewsTab/
+│   │   │   ├── ReviewsTab.jsx
+│   │   │   ├── RatingSummary.jsx
+│   │   │   ├── ReviewCard.jsx
+│   │   │   └── ReviewFilters.jsx
+│   │   └── LocationTab/
+│   │       ├── LocationTab.jsx
+│   │       ├── MapSection.jsx
+│   │       └── NearbyAmenities.jsx
+│   ├── ActionSection/                # Like + Book buttons
+│   │   ├── ActionSection.jsx
+│   │   └── LikeCheckbox.jsx
+│   └── FloatingCallButton.jsx        # Contact button
+├── hooks/                            # Custom hooks
+│   ├── usePropertyDetails.js         # Fetch property data
+│   ├── useTabNavigation.js           # Tab state management
+│   └── useGallery.js                 # Carousel functionality
+└── utils/
+    ├── propertyMockData.js           # Mock data for development
+    └── constants.js                  # Constants for property details
+
+
+
+
+
+
+
+
 SearchHeader/
 ├── SearchHeader.jsx                 ← Main container
 ├── PrimaryRow.jsx                   ← Top controls row
