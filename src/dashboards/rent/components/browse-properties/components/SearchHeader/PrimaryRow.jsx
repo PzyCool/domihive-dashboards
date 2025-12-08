@@ -6,6 +6,8 @@ import FilterBadge from './components/FilterBadge';
 import ViewToggle from './components/ViewToggle';
 import ManagementDropdown from './components/ManagementDropdown';
 import ExpandButton from './components/ExpandButton';
+import AdvancedFilterIcon from "./AdvancedFilterOverlay/AdvancedFilterIcon";
+
 
 const PrimaryRow = ({
   filters,
@@ -14,7 +16,9 @@ const PrimaryRow = ({
   onViewToggle,
   activeFiltersCount,
   isExpanded,
-  onToggleExpand
+  onToggleExpand,
+  showAdvancedFilters, // ADD THIS
+  onAdvancedToggle     // ADD THIS
 }) => {
   // Handle search
   const handleSearch = (searchQuery) => {
@@ -49,6 +53,12 @@ const PrimaryRow = ({
         <FilterBadge
           count={activeFiltersCount}
           onClick={onToggleExpand}
+        />
+
+        {/* NEW: Advanced Filter Icon */}
+        <AdvancedFilterIcon
+          isActive={showAdvancedFilters}
+          onClick={onAdvancedToggle}
         />
       </div>
       

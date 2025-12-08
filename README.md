@@ -1,3 +1,30 @@
+SearchHeader/
+├── SearchHeader.jsx                 ← Main container
+├── PrimaryRow.jsx                   ← Top controls row
+├── SecondaryRow.jsx                 ← Regular filters
+├── AdvancedFilterOverlay/           ← NEW FOLDER
+│   ├── AdvancedFilterOverlay.jsx    ← Main overlay container
+│   ├── AdvancedFilterIcon.jsx       ← Gear icon button
+│   ├── components/                  ← Filter sections
+│   │   ├── PriceSlider.jsx
+│   │   ├── BedroomCheckboxes.jsx
+│   │   ├── BathroomCheckboxes.jsx
+│   │   ├── FurnishingOptions.jsx
+│   │   ├── AmenitiesGrid.jsx
+│   │   ├── PetPolicyToggle.jsx
+│   │   ├── PropertyAgeSelect.jsx
+│   │   └── HorizontalScroll.jsx     ← Scroll container
+│   └── hooks/
+│       └── useAdvancedFilters.js    ← State management
+├── components/                      ← Existing components
+│   ├── SearchBar.jsx
+│   ├── FilterBadge.jsx
+│   ├── ViewToggle.jsx
+│   └── ... (all existing)
+└── hooks/
+    └── useSearchHeader.js
+
+
 
 
 SearchHeader/

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PrimaryRow from './PrimaryRow';
 import SecondaryRow from './SecondaryRow';
+import AdvancedFilterOverlay from './AdvancedFilterOverlay/AdvancedFilterOverlay';
 
 const SearchHeader = ({ 
   filters, 
@@ -196,25 +197,34 @@ const SearchHeader = ({
       });
     }
   };
+
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+const handleAdvancedToggle = () => {
+  setShowAdvancedFilters(!showAdvancedFilters);
+};
   
-  return (
-    <div 
-      className="search-header fixed top-16 z-40 bg-white border-b border-gray-200 transition-all duration-300 ease-in-out"
-      style={{
-        borderBottom: '2px solid rgba(159, 117, 57, 0.3)',
-        ...getHeaderStyle()
-      }}
-    >
-      {/* Primary Row - Always Visible */}
-      <PrimaryRow
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        viewType={viewType}
-        onViewToggle={onViewToggle}
-        activeFiltersCount={activeFiltersCount}
-        isExpanded={isExpanded}
-        onToggleExpand={handleToggleExpand}
-      />
+return (
+  <div 
+    className="search-header fixed top-16 z-40 bg-white border-b border-gray-200 transition-all duration-300 ease-in-out"
+    style={{
+      borderBottom: '2px solid rgba(159, 117, 57, 0.3)',
+      ...getHeaderStyle()
+    }}
+  >
+    
+    {/* Primary Row - Always Visible */}
+    <PrimaryRow
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      viewType={viewType}
+      onViewToggle={onViewToggle}
+      activeFiltersCount={activeFiltersCount}
+      isExpanded={isExpanded}
+      onToggleExpand={handleToggleExpand}
+      showAdvancedFilters={showAdvancedFilters} // ADD THIS
+      onAdvancedToggle={handleAdvancedToggle}   // ADD THIS
+    />
       
       {/* Secondary Row - Slide Down Animation */}
       <div className={`
@@ -232,7 +242,29 @@ const SearchHeader = ({
           />
         )}
       </div>
-    </div>
+    
+    {/* ADD THIS: Advanced Filter Overlay */}
+    <AdvancedFilterOverlay
+      isOpen={showAdvancedFilters}
+      onClose={() => setShowAdvancedFilters(false)}
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      onApplyFilters={() => setShowAdvancedFilters(false)}
+      onClearFilters={() => {
+        onFilterChange({
+          priceMin: null,
+          priceMax: null,
+          bedrooms: [],
+          bathrooms: [],
+          furnishing: '',
+          amenities: [],
+          petsAllowed: false,
+          propertyAge: ''
+        });
+        setShowAdvancedFilters(false);
+      }}
+    />
+  </div>
   );
 };
 
