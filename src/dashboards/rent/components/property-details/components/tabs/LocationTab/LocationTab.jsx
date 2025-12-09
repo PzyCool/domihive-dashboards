@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import MapSection from './MapSection';
 import NearbyAmenities from './NearbyAmenities';
+import ActionSection from '../../ActionSection/ActionSection'; // Add import
 
 const LocationTab = ({ property }) => {
   const [activeAmenity, setActiveAmenity] = useState('all');
@@ -15,6 +16,11 @@ const LocationTab = ({ property }) => {
     { id: 'dining', label: 'Dining', icon: '🍽️', count: 5 },
     { id: 'entertainment', label: 'Entertainment', icon: '🎬', count: 3 }
   ];
+
+  const handleBookInspection = (propertyId) => {
+    console.log('Book inspection for property:', propertyId);
+    // Navigation logic will go here
+  };
 
   return (
     <div className="location-tab">
@@ -37,8 +43,15 @@ const LocationTab = ({ property }) => {
         <NearbyAmenities activeCategory={activeAmenity} />
       </div>
 
-    </div>
+      {/* ActionSection - Add this */}
+      <div className="mt-12 pt-8 border-t border-[#e2e8f0]">
+        <ActionSection 
+          propertyId={property?.id || 'default'} 
+          onBookInspection={handleBookInspection}
+        />
+      </div>
 
+    </div>
   );
 };
 

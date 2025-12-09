@@ -3,6 +3,7 @@ import React from 'react';
 import RatingSummary from './RatingSummary';
 import ReviewCard from './ReviewCard';
 import ReviewFilters from './ReviewFilters';
+import ActionSection from '../../ActionSection/ActionSection'; // Add import
 
 const ReviewsTab = ({ property }) => {
   const reviews = [
@@ -31,6 +32,11 @@ const ReviewsTab = ({ property }) => {
       verified: true
     }
   ];
+
+  const handleBookInspection = (propertyId) => {
+    console.log('Book inspection for property:', propertyId);
+    // Navigation logic will go here
+  };
 
   return (
     <div className="reviews-tab">
@@ -67,6 +73,14 @@ const ReviewsTab = ({ property }) => {
         <button className="px-6 py-3 bg-[#f8fafc] text-[#0e1f42] rounded-lg border border-[#e2e8f0] hover:bg-[#e2e8f0] transition-colors duration-300 font-medium">
           Load More Reviews
         </button>
+      </div>
+
+      {/* ActionSection - Add this */}
+      <div className="mt-12 pt-8 border-t border-[#e2e8f0]">
+        <ActionSection 
+          propertyId={property?.id || 'default'} 
+          onBookInspection={handleBookInspection}
+        />
       </div>
     </div>
   );

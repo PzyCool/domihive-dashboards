@@ -5,6 +5,7 @@ const PropertyGrid = ({
   properties, 
   onPropertyClick,
   onFavoriteToggle,
+  onBookNowClick, // ADD THIS PROP
 }) => {
   
   if (!properties || properties.length === 0) {
@@ -27,6 +28,7 @@ const PropertyGrid = ({
             property={property}
             onViewDetails={() => onPropertyClick?.(property.id)}
             onToggleFavorite={(id, isFavorite) => onFavoriteToggle?.(id, isFavorite)}
+            onBookNowClick={onBookNowClick} // ADD THIS PROP
           />
         </div>
       ))}

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { generateNigerianProperties } from '../components/browse-properties/utils/propertyData';
 import { VIEW_TYPES, SORT_OPTIONS, ITEMS_PER_PAGE } from '../components/browse-properties/utils/constants';
 import PropertyDetailsModal from '../components/property-details/PropertyDetailsModal';
+import BookInspectionPage from '../components/book-inspection/BookInspectionPage'; // ADD THIS IMPORT
 
 // Correct imports based on your folder structure
 import SearchHeader from '../components/browse-properties/components/SearchHeader/SearchHeader';
@@ -15,6 +16,10 @@ const RentBrowse = () => {
   const [displayedProperties, setDisplayedProperties] = useState([]);
   const [selectedPropertyId, setSelectedPropertyId] = useState(null);
   const [showPropertyDetails, setShowPropertyDetails] = useState(false);
+  
+  // ADD THESE STATES FOR BOOK INSPECTION
+  const [showBookInspection, setShowBookInspection] = useState(false);
+  const [selectedPropertyForBooking, setSelectedPropertyForBooking] = useState(null);
   
   // Filter states - UPDATED to match SearchHeader needs
   const [filters, setFilters] = useState({
@@ -36,6 +41,14 @@ const RentBrowse = () => {
   
   // Loading state
   const [isLoading, setIsLoading] = useState(true);
+  
+  // ADD THIS FUNCTION - Handle Book Now Click
+  const handleBookNowClick = (propertyId) => {
+    console.log('Booking property:', propertyId);
+    setSelectedPropertyForBooking(propertyId);
+    setShowBookInspection(true);
+    setShowPropertyDetails(false); // Close property details if open
+  };
   
   // Initialize properties
   useEffect(() => {
@@ -194,6 +207,7 @@ const RentBrowse = () => {
     console.log('Opening property details for:', propertyId);
     setSelectedPropertyId(propertyId);
     setShowPropertyDetails(true);
+    setShowBookInspection(false); // Close booking if open
   };
   
   // Handle favorite toggle
@@ -218,8 +232,13 @@ const RentBrowse = () => {
   
   return (
     <div className="rent-browse-container min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Show either Browse Properties OR Property Details */}
-      {showPropertyDetails ? (
+      {/* SHOW EITHER BOOK INSPECTION, PROPERTY DETAILS, OR BROWSE PROPERTIES */}
+      {showBookInspection ? (
+        // Book Inspection Page
+        <BookInspectionPage 
+          propertyId={selectedPropertyForBooking}
+        />
+      ) : showPropertyDetails ? (
         // Property Details Modal as a page
         <PropertyDetailsModal
           propertyId={selectedPropertyId}
@@ -267,6 +286,7 @@ const RentBrowse = () => {
                   viewType={viewType}
                   onPropertyClick={handlePropertyClick}
                   onFavoriteToggle={handleFavoriteToggle}
+                  onBookNowClick={handleBookNowClick} // ADD THIS PROP
                 />
               </div>
               

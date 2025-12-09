@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const PropertyCard = ({ property, onViewDetails, onToggleFavorite }) => {
+const PropertyCard = ({ property, onViewDetails, onToggleFavorite, onBookNowClick }) => { // ADD onBookNowClick prop
   const [isFavorite, setIsFavorite] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
@@ -81,6 +81,14 @@ const PropertyCard = ({ property, onViewDetails, onToggleFavorite }) => {
     e.stopPropagation();
     if (onViewDetails) {
       onViewDetails(property.id);
+    }
+  };
+  
+  // ADD THIS FUNCTION - Handle Book Now Click
+  const handleBookNowClick = (e) => {
+    e.stopPropagation();
+    if (onBookNowClick) {
+      onBookNowClick(property.id);
     }
   };
   
@@ -250,17 +258,17 @@ const PropertyCard = ({ property, onViewDetails, onToggleFavorite }) => {
         </div>
         
         {/* Property Description Section */}
-<div className="mb-4 min-h-[70px]">
-  <div className="flex items-center gap-2 mb-2">
-    <i className="fas fa-align-left text-[#9f7539] text-xs"></i>
-    <div className="text-xs font-semibold text-gray-800">About this property:</div>
-  </div>
-  <div className="text-sm text-gray-600 line-clamp-3 leading-relaxed">
-    {`Beautiful ${propertyTypeInfo.label.toLowerCase()} in ${property.location}. 
-    ${property.bedrooms} bedroom${property.bedrooms > 1 ? 's' : ''}, ${property.bathrooms} bathroom${property.bathrooms > 1 ? 's' : ''}, ${property.size} of elegant living space. 
-    Modern design with premium finishes and amenities.`}
-  </div>
-</div>
+        <div className="mb-4 min-h-[70px]">
+          <div className="flex items-center gap-2 mb-2">
+            <i className="fas fa-align-left text-[#9f7539] text-xs"></i>
+            <div className="text-xs font-semibold text-gray-800">About this property:</div>
+          </div>
+          <div className="text-sm text-gray-600 line-clamp-3 leading-relaxed">
+            {`Beautiful ${propertyTypeInfo.label.toLowerCase()} in ${property.location}. 
+            ${property.bedrooms} bedroom${property.bedrooms > 1 ? 's' : ''}, ${property.bathrooms} bathroom${property.bathrooms > 1 ? 's' : ''}, ${property.size} of elegant living space. 
+            Modern design with premium finishes and amenities.`}
+          </div>
+        </div>
         
         {/* Property Type and Estate Info */}
         <div className="mb-4 flex items-center justify-between min-h-[40px]">
@@ -300,10 +308,7 @@ const PropertyCard = ({ property, onViewDetails, onToggleFavorite }) => {
               View Details
             </button>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log('Book inspection for:', property.id);
-              }}
+              onClick={handleBookNowClick} // UPDATE THIS LINE
               className="flex-1 bg-gradient-to-r from-[#9f7539] to-[#b58a4a] text-white font-semibold py-2.5 rounded-lg hover:from-[#b58a4a] hover:to-[#9f7539] transition-all flex items-center justify-center gap-2 text-sm shadow-sm hover:shadow"
             >
               <i className="fas fa-calendar-check text-xs"></i>

@@ -1,3 +1,34 @@
+
+src/dashboards/rent/components/book-inspection/
+├── BookInspectionPage.jsx     (Main page container)
+├── PropertySummary.jsx        (Shows property being booked)
+├── InspectionForm.jsx         (Date/time picker, contact info)
+├── AgentContact.jsx           (Agent info for follow-up)
+└── index.js                   (Exports)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 src/dashboards/rent/components/property-details/
 ├── PropertyDetailsModal.jsx          # Main modal container
 ├── components/                       # All sub-components

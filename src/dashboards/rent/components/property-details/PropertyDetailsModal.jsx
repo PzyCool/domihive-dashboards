@@ -7,7 +7,7 @@ import PropertyGallery from './components/PropertyGallery/PropertyGallery';
 import PropertyTabs from './components/PropertyTabs/PropertyTabs';
 
 // import ActionSection from './components/ActionSection/ActionSection';
-// import FloatingCallButton from './components/FloatingCallButton';
+import FloatingCallButton from './components/FloatingCallButton';
 
 // Import hooks
 import { usePropertyDetails } from './hooks/usePropertyDetails';
@@ -63,7 +63,7 @@ const PropertyDetailsModal = ({ propertyId, isOpen, onClose }) => {
             </div>
           ) : property ? (
             <div className="container mx-auto px-4 lg:px-6 py-6">
-              {/* Back to Browse Navigation - From your HTML */}
+              {/* Back to Browse Navigation - Top */}
               <div className="mb-6">
                 <button
                   onClick={onClose}
@@ -76,6 +76,8 @@ const PropertyDetailsModal = ({ propertyId, isOpen, onClose }) => {
               
               {/* Property Gallery */}
               <PropertyGallery images={property.images} />
+
+              <FloatingCallButton phoneNumber="+2349010851071" />
               
               {/* Property Header */}
               <PropertyHeader property={property} />
@@ -83,8 +85,16 @@ const PropertyDetailsModal = ({ propertyId, isOpen, onClose }) => {
               {/* Property Tabs */}
               <PropertyTabs property={property} />
               
-              {/* Action Section */}
-              {/* <ActionSection propertyId={propertyId} /> */}
+              {/* Bottom Navigation - Back to Browse Button */}
+              <div className="mt-8 pt-8 border-t border-[#e2e8f0]">
+                <button
+                  onClick={onClose}
+                  className="flex items-center gap-2 px-6 py-3 bg-[#f8fafc] border border-[#e2e8f0] text-[#0e1f42] font-semibold rounded-lg hover:bg-[#e2e8f0] transition-all duration-300 w-full sm:w-auto justify-center"
+                >
+                  <i className="fas fa-arrow-left"></i>
+                  Back to Browse
+                </button>
+              </div>
             </div>
           ) : null}
         </div>
